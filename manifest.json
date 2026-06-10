@@ -1,0 +1,17 @@
+{
+  "name": "Grammar Heroes",
+  "short_name": "Grammar Heroes",
+  "description": "Latih tubi grammar English untuk Tahun 1-6. Tema superhero, ganjaran XP & lencana. Oleh Cikgu Shahril.",
+  "lang": "ms",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF7E6",
+  "theme_color": "#2563EB",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grammar Heroes — Latih Tubi Grammar (by Cikgu Shahril)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================================
+   GRAMMAR HEROES — tema komik superhero
+   Palet: ink #14142B | hero-blue #2563EB | crimson #E11D48
+           pow-yellow #FACC15 | sky #38BDF8 | paper #FFF7E6
+   Display: Bangers (lettering komik) | Body: Fredoka (bulat, mesra kanak)
+   ========================================================================= */
+:root{
+  --ink:#14142B; --blue:#2563EB; --blue-d:#1E3A8A; --crimson:#E11D48;
+  --yellow:#FACC15; --sky:#38BDF8; --paper:#FFF7E6; --paper-2:#FFEFC9;
+  --green:#22C55E; --green-d:#15803D; --white:#FFFFFF;
+  --shadow:6px 6px 0 var(--ink);
+  --shadow-sm:3px 3px 0 var(--ink);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:17px}
+body{
+  font-family:'Fredoka',system-ui,'Segoe UI',sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle, rgba(20,20,43,.06) 1.4px, transparent 1.5px) 0 0/16px 16px,
+    linear-gradient(160deg,#FFF7E6 0%, #FFE7B8 100%);
+  min-height:100vh; line-height:1.45;
+  overflow-x:hidden;
+}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+.screen{display:none;animation:pop .35s cubic-bezier(.34,1.56,.64,1)}
+.screen.active{display:block}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---- Topbar / hero status ---- */
+.topbar{
+  display:flex;align-items:center;gap:12px;
+  background:var(--ink);color:var(--paper);
+  border:3px solid var(--ink);border-radius:18px;
+  padding:12px 16px;box-shadow:var(--shadow);margin-bottom:18px;
+}
+.badge-rank{
+  font-family:'Bangers',cursive;font-size:1.5rem;letter-spacing:1px;
+  background:var(--yellow);color:var(--ink);
+  padding:4px 14px;border-radius:12px;border:3px solid var(--paper);
+  white-space:nowrap;text-shadow:1px 1px 0 rgba(255,255,255,.4);
+}
+.status-meta{flex:1;min-width:0}
+.status-meta .name{font-weight:700;font-size:.92rem;opacity:.85}
+.xpbar-track{height:12px;background:#33334d;border-radius:99px;overflow:hidden;margin-top:5px;border:2px solid #000}
+.xpbar-fill{height:100%;background:linear-gradient(90deg,var(--sky),var(--blue));border-radius:99px;width:0;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+.xp-num{font-size:.78rem;font-weight:600;opacity:.8;margin-top:3px;display:block}
+
+/* ---- Hero title ---- */
+.hero-title{text-align:center;margin:10px 0 24px;position:relative}
+.hero-title h1{
+  font-family:'Bangers',cursive;font-size:clamp(3rem,12vw,5rem);
+  line-height:.9;color:var(--crimson);
+  -webkit-text-stroke:3px var(--ink);text-stroke:3px var(--ink);
+  text-shadow:5px 5px 0 var(--yellow), 8px 8px 0 var(--ink);
+  letter-spacing:2px;transform:rotate(-3deg);
+}
+.hero-title .sub{
+  display:inline-block;margin-top:10px;font-weight:600;
+  background:var(--ink);color:var(--paper);padding:5px 16px;border-radius:99px;
+  font-size:.95rem;transform:rotate(1deg);box-shadow:var(--shadow-sm);
+}
+
+/* ---- Comic burst ---- */
+.burst{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  z-index:50;pointer-events:none;
+}
+.burst.show{display:flex}
+.burst .star{
+  font-family:'Bangers',cursive;font-size:clamp(4rem,22vw,9rem);color:var(--yellow);
+  -webkit-text-stroke:4px var(--ink);
+  text-shadow:6px 6px 0 var(--crimson);
+  animation:burstPop .7s cubic-bezier(.34,1.7,.5,1);
+}
+@keyframes burstPop{0%{transform:scale(0) rotate(-25deg);opacity:0}40%{transform:scale(1.25) rotate(8deg);opacity:1}70%{transform:scale(.95) rotate(-3deg)}100%{transform:scale(1.05) rotate(0);opacity:0}}
+
+/* ---- Cards ---- */
+.card{
+  background:var(--white);border:3px solid var(--ink);border-radius:20px;
+  box-shadow:var(--shadow);padding:18px;margin-bottom:16px;
+}
+.section-label{
+  font-family:'Bangers',cursive;font-size:1.6rem;letter-spacing:1px;
+  color:var(--blue-d);margin:4px 4px 14px;transform:rotate(-1deg);
+}
+
+/* ---- World grid ---- */
+.world-grid{display:grid;gap:14px}
+.world-card{
+  display:flex;align-items:center;gap:14px;cursor:pointer;
+  border:3px solid var(--ink);border-radius:18px;padding:14px;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  transition:transform .15s, box-shadow .15s;position:relative;overflow:hidden;
+}
+.world-card:hover,.world-card:focus-visible{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink);outline:none}
+.world-card:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.world-card .emoji{font-size:2.4rem;flex-shrink:0;width:56px;height:56px;display:grid;place-items:center;background:var(--paper-2);border:3px solid var(--ink);border-radius:14px}
+.world-card .wc-body{flex:1;min-width:0}
+.world-card .wc-name{font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:.5px;line-height:1}
+.world-card .wc-grade{font-size:.78rem;font-weight:600;opacity:.7}
+.world-card .wc-stars{font-size:.95rem;margin-top:3px;letter-spacing:2px}
+.world-card .chev{font-size:1.6rem;color:var(--blue);font-weight:700}
+.world-card.locked{opacity:.55;cursor:not-allowed}
+.world-card.locked:hover{transform:none;box-shadow:var(--shadow-sm)}
+.lock-tag{position:absolute;top:8px;right:10px;font-size:.7rem;background:var(--ink);color:var(--paper);padding:2px 8px;border-radius:99px;font-weight:600}
+
+/* ---- Topic list ---- */
+.topic{
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  border:3px solid var(--ink);border-radius:16px;padding:12px 14px;
+  background:var(--white);box-shadow:var(--shadow-sm);margin-bottom:10px;
+  transition:transform .15s;
+}
+.topic:hover,.topic:focus-visible{transform:translateX(4px);outline:none}
+.topic .num{font-family:'Bangers',cursive;font-size:1.3rem;background:var(--blue);color:#fff;width:38px;height:38px;display:grid;place-items:center;border-radius:10px;border:2px solid var(--ink);flex-shrink:0}
+.topic .t-body{flex:1}
+.topic .t-name{font-weight:700;font-size:1.02rem}
+.topic .t-meta{font-size:.76rem;opacity:.65}
+.topic .t-stars{letter-spacing:1px}
+.topic.boss{background:linear-gradient(135deg,var(--crimson),#9F1239);color:#fff}
+.topic.boss .num{background:var(--yellow);color:var(--ink)}
+.topic.boss .t-meta{color:#FFE4E6;opacity:.9}
+
+/* ---- Buttons ---- */
+.btn{
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.05rem;cursor:pointer;
+  border:3px solid var(--ink);border-radius:14px;padding:13px 22px;
+  background:var(--yellow);color:var(--ink);box-shadow:var(--shadow-sm);
+  transition:transform .12s, box-shadow .12s;display:inline-flex;align-items:center;gap:8px;
+}
+.btn:hover,.btn:focus-visible{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink);outline:none}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.ghost{background:var(--white)}
+.btn.full{width:100%;justify-content:center}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:var(--shadow-sm)}
+
+/* ---- Quiz ---- */
+.quiz-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.q-progress{flex:1;height:14px;background:#E5E7EB;border:2px solid var(--ink);border-radius:99px;overflow:hidden}
+.q-progress span{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--green-d));width:0;transition:width .4s}
+.q-count{font-family:'Bangers',cursive;font-size:1.2rem;letter-spacing:1px}
+.combo{font-weight:700;font-size:.85rem;color:var(--crimson);min-width:74px;text-align:right}
+
+.panel{
+  background:var(--paper);border:3px solid var(--ink);border-radius:18px;
+  padding:18px;margin-bottom:8px;position:relative;
+  background-image:radial-gradient(circle, rgba(20,20,43,.07) 1.2px, transparent 1.3px);
+  background-size:13px 13px;
+}
+.q-type-tag{
+  display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;background:var(--ink);color:var(--paper);
+  padding:3px 12px;border-radius:99px;margin-bottom:12px;
+}
+.q-instruction{font-size:.9rem;font-weight:600;color:var(--blue-d);margin-bottom:6px}
+.q-text{font-size:1.35rem;font-weight:600;line-height:1.4}
+.q-text .blank{color:var(--crimson);font-weight:700;border-bottom:3px dashed var(--crimson);padding:0 18px}
+
+.options{display:grid;gap:11px;margin-top:16px}
+.opt{
+  font-family:'Fredoka',sans-serif;font-size:1.1rem;font-weight:600;text-align:left;cursor:pointer;
+  border:3px solid var(--ink);border-radius:14px;padding:14px 18px;
+  background:var(--white);box-shadow:var(--shadow-sm);transition:transform .12s;
+  display:flex;align-items:center;gap:12px;
+}
+.opt:hover:not(:disabled),.opt:focus-visible{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink);outline:none}
+.opt .key{font-family:'Bangers',cursive;font-size:1.1rem;background:var(--paper-2);width:32px;height:32px;border-radius:8px;display:grid;place-items:center;border:2px solid var(--ink);flex-shrink:0}
+.opt.correct{background:var(--green);color:#fff}
+.opt.correct .key{background:#fff;color:var(--green-d)}
+.opt.wrong{background:var(--crimson);color:#fff}
+.opt.wrong .key{background:#fff;color:var(--crimson)}
+.opt:disabled{cursor:default}
+
+.fill-input{
+  font-family:'Fredoka',sans-serif;font-size:1.3rem;font-weight:700;text-align:center;
+  border:3px solid var(--ink);border-radius:14px;padding:14px;width:100%;
+  background:var(--white);box-shadow:var(--shadow-sm);color:var(--ink);
+}
+.fill-input:focus{outline:none;border-color:var(--blue)}
+.fill-input.correct{background:#DCFCE7;border-color:var(--green-d)}
+.fill-input.wrong{background:#FFE4E6;border-color:var(--crimson)}
+
+.feedback{margin-top:14px;padding:14px 16px;border:3px solid var(--ink);border-radius:14px;font-weight:600;display:none}
+.feedback.show{display:block;animation:pop .3s}
+.feedback.good{background:#DCFCE7}
+.feedback.bad{background:#FFE4E6}
+.feedback .fb-title{font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:1px;margin-bottom:4px}
+.feedback .fb-ans{font-size:.95rem}
+.feedback .fb-hint{font-size:.85rem;opacity:.85;margin-top:6px;font-style:italic}
+
+.hint-row{margin-top:12px}
+.btn-hint{font-size:.85rem;padding:8px 14px;background:var(--sky);border-radius:99px}
+
+/* ---- Result ---- */
+.result-medal{font-size:4.5rem;text-align:center;margin:6px 0}
+.result-title{font-family:'Bangers',cursive;font-size:2.4rem;text-align:center;color:var(--crimson);-webkit-text-stroke:1.5px var(--ink);letter-spacing:1px}
+.result-stars{font-size:2.6rem;text-align:center;letter-spacing:6px;margin:8px 0}
+.result-stat{display:flex;justify-content:space-between;padding:10px 4px;border-bottom:2px dashed rgba(20,20,43,.2);font-weight:600}
+.result-stat:last-child{border-bottom:none}
+.result-stat .v{font-family:'Bangers',cursive;font-size:1.3rem;color:var(--blue-d)}
+
+/* ---- Badges ---- */
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
+.badge{text-align:center;padding:12px 6px;border:3px solid var(--ink);border-radius:14px;background:var(--white);box-shadow:var(--shadow-sm)}
+.badge.locked{opacity:.35;filter:grayscale(1)}
+.badge .b-icon{font-size:2rem}
+.badge .b-name{font-size:.72rem;font-weight:700;margin-top:4px;line-height:1.1}
+
+/* ---- nav row ---- */
+.nav-row{display:flex;gap:10px;margin-top:6px}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--blue-d);cursor:pointer;margin-bottom:14px;font-size:.95rem}
+.back-link:hover{text-decoration:underline}
+
+.footer-note{text-align:center;font-size:.78rem;opacity:.6;margin-top:24px;font-weight:600}
+
+/* toast */
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);
+  background:var(--ink);color:var(--paper);padding:12px 22px;border-radius:99px;
+  font-weight:700;box-shadow:var(--shadow);z-index:60;border:3px solid var(--yellow);
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="badge-rank" id="rankBadge">ROOKIE</div>
+    <div class="status-meta">
+      <div class="name" id="rankName">Hero baru — jom mula!</div>
+      <div class="xpbar-track"><div class="xpbar-fill" id="xpFill"></div></div>
+      <span class="xp-num" id="xpNum">0 XP</span>
+    </div>
+  </div>
+
+  <!-- ============ HOME ============ -->
+  <section class="screen active" id="screen-home">
+    <div class="hero-title">
+      <h1>GRAMMAR<br>HEROES</h1>
+      <span class="sub">⚡ Latih grammar, jadi wira!</span>
+    </div>
+
+    <div class="section-label">🗺️ Pilih Dunia (Choose Your World)</div>
+    <div class="world-grid" id="worldGrid"></div>
+
+    <div class="nav-row">
+      <button class="btn ghost full" onclick="showBadges()">🏅 Bilik Lencana (My Badges)</button>
+    </div>
+    <div class="footer-note">Dibina oleh Cikgu Shahril • Grammar Heroes v1</div>
+  </section>
+
+  <!-- ============ WORLD MAP (topics) ============ -->
+  <section class="screen" id="screen-world">
+    <span class="back-link" onclick="goHome()">⬅️ Balik ke Peta</span>
+    <div class="card" id="worldHeader"></div>
+    <div id="topicList"></div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="screen" id="screen-quiz">
+    <span class="back-link" onclick="quitQuiz()">⬅️ Keluar Misi</span>
+    <div class="quiz-head">
+      <span class="q-count" id="qCount">1/8</span>
+      <div class="q-progress"><span id="qProgress"></span></div>
+      <span class="combo" id="combo"></span>
+    </div>
+
+    <div class="panel">
+      <span class="q-type-tag" id="qTypeTag">SOALAN</span>
+      <div class="q-instruction" id="qInstruction"></div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="qOptions"></div>
+      <div class="hint-row" id="hintRow"></div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="btn blue full" id="nextBtn" style="display:none" onclick="nextQuestion()">Seterusnya ➡️</button>
+  </section>
+
+  <!-- ============ RESULT ============ -->
+  <section class="screen" id="screen-result">
+    <div class="card">
+      <div class="result-medal" id="resMedal">🏆</div>
+      <div class="result-title" id="resTitle">MISI SELESAI!</div>
+      <div class="result-stars" id="resStars">⭐⭐⭐</div>
+      <div style="margin:16px 0 4px">
+        <div class="result-stat"><span>Jawapan betul</span><span class="v" id="resCorrect">0/0</span></div>
+        <div class="result-stat"><span>Combo terhebat</span><span class="v" id="resCombo">0</span></div>
+        <div class="result-stat"><span>XP diperoleh</span><span class="v" id="resXP">+0</span></div>
+      </div>
+    </div>
+    <button class="btn full" id="resRetry" onclick="retryTopic()">🔁 Cuba Lagi</button>
+    <div style="height:10px"></div>
+    <button class="btn blue full" onclick="backToWorld()">➡️ Misi Lain</button>
+  </section>
+
+  <!-- ============ BADGES ============ -->
+  <section class="screen" id="screen-badges">
+    <span class="back-link" onclick="goHome()">⬅️ Balik ke Peta</span>
+    <div class="section-label">🏅 Bilik Lencana</div>
+    <div class="card"><div class="badge-grid" id="badgeGrid"></div></div>
+  </section>
+
+</div>
+
+<div class="burst" id="burst"><div class="star" id="burstText">POW!</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===========================================================================
+   ⚡ BANK SOALAN — INILAH BAHAGIAN YANG CIKGU BOLEH TAMBAH/EDIT SENDIRI ⚡
+   ---------------------------------------------------------------------------
+   Setiap soalan ada satu daripada 3 jenis:
+
+   1) PILIHAN GANDA (mcq):
+      { type:"mcq", q:"He ___ to school.", options:["go","goes","going"],
+        answer:1, hint:"'He' guna 'goes'." }
+      -> answer = nombor index pilihan betul (mula dari 0)
+
+   2) ISI TEMPAT KOSONG / taip (fill):
+      { type:"fill", q:"I ___ a student.", answer:"am", hint:"Selepas 'I' guna 'am'." }
+      -> answer = perkataan betul (huruf besar/kecil tak kisah). Boleh letak
+         beberapa jawapan diterima: answer:["is","is a"]
+
+   3) BETULKAN AYAT SILAP (fix):
+      { type:"fix", q:"she are happy.", options:["She is happy.","She are happy.","She am happy."],
+        answer:0, hint:"'She' guna 'is' + huruf besar di awal." }
+      -> sama macam mcq: pilih ayat yang BETUL.
+
+   diff: 1=mudah, 2=sederhana, 3=cabaran (untuk kesukaran adaptif).
+   Letak je banyak mana soalan pun dalam senarai "qs". Enjin pilih rawak.
+   =========================================================================== */
+
+const WORLDS = [
+  {
+    id:"w1", name:"ROOKIE BASE", emoji:"🛡️", grade:"Tahun 1–2",
+    color:"#22C55E",
+    topics:[
+      { name:"Capital Letters", qs:[
+        {type:"mcq", q:"Which one is correct?", options:["my name is Ali.","My name is Ali.","my Name is ali."], answer:1, diff:1, hint:"Ayat mula dengan huruf BESAR."},
+        {type:"fix", q:"i like nasi lemak.", options:["I like nasi lemak.","i Like nasi lemak.","i like Nasi lemak."], answer:0, diff:1, hint:"'I' selalu huruf besar."},
+        {type:"mcq", q:"Pick the correct sentence.", options:["we live in kedah.","We live in Kedah.","we live in Kedah."], answer:1, diff:2, hint:"Nama tempat (Kedah) + awal ayat = huruf besar."},
+        {type:"fix", q:"today is monday.", options:["Today is Monday.","today is Monday.","Today is monday."], answer:0, diff:2, hint:"Awal ayat & nama hari = huruf besar."},
+        {type:"mcq", q:"Which name is written correctly?", options:["ahmad","Ahmad","aHmad"], answer:1, diff:1, hint:"Nama orang mula huruf besar."},
+        {type:"fix", q:"the cat is black.", options:["The cat is black.","the Cat is black.","The Cat Is Black."], answer:0, diff:1, hint:"Hanya huruf pertama ayat jadi besar."},
+      ]},
+      { name:"Naming Words (Nouns)", qs:[
+        {type:"mcq", q:"Which one is a naming word (noun)?", options:["run","table","fast"], answer:1, diff:1, hint:"Noun = nama benda/orang/tempat. 'table' = meja."},
+        {type:"mcq", q:"A place to learn is a ___.", options:["school","jump","blue"], answer:0, diff:1, hint:"Tempat belajar = school."},
+        {type:"fill", q:"A baby cat is called a ___.", answer:["kitten","cat"], diff:2, hint:"Anak kucing = kitten."},
+        {type:"mcq", q:"Which group are all nouns?", options:["dog, ball, book","big, small, tall","sing, eat, play"], answer:0, diff:2, hint:"Semua nama benda/haiwan."},
+        {type:"mcq", q:"Pick the noun: 'The bird can fly.'", options:["fly","can","bird"], answer:2, diff:2, hint:"'bird' = nama haiwan = noun."},
+        {type:"fill", q:"We sleep on a ___ at night.", answer:["bed"], diff:1, hint:"Tempat tidur = bed."},
+      ]},
+      { name:"A or An", qs:[
+        {type:"mcq", q:"I have ___ apple.", options:["a","an"], answer:1, diff:1, hint:"'apple' mula bunyi vokal (a) → guna 'an'."},
+        {type:"mcq", q:"She sees ___ dog.", options:["a","an"], answer:0, diff:1, hint:"'dog' mula bunyi konsonan → guna 'a'."},
+        {type:"fill", q:"He eats ___ orange.", answer:["an"], diff:2, hint:"'orange' bunyi vokal → 'an'."},
+        {type:"mcq", q:"It is ___ umbrella.", options:["a","an"], answer:1, diff:2, hint:"'umbrella' bunyi vokal → 'an'."},
+        {type:"fill", q:"I want ___ pencil.", answer:["a"], diff:1, hint:"'pencil' bunyi konsonan → 'a'."},
+        {type:"mcq", q:"That is ___ egg.", options:["a","an"], answer:1, diff:1, hint:"'egg' bunyi vokal → 'an'."},
+      ]},
+      { name:"This / That", qs:[
+        {type:"mcq", q:"___ book here is mine. (dekat)", options:["This","That"], answer:0, diff:1, hint:"Dekat dengan kita = This."},
+        {type:"mcq", q:"___ bird over there is small. (jauh)", options:["This","That"], answer:1, diff:1, hint:"Jauh dari kita = That."},
+        {type:"fill", q:"___ pen in my hand is blue. (dekat)", answer:["this"], diff:2, hint:"Dalam tangan = dekat = This."},
+        {type:"mcq", q:"Look at ___ mountain far away.", options:["this","that"], answer:1, diff:2, hint:"Jauh = that."},
+        {type:"fix", q:"That apple in my hand is red.", options:["This apple in my hand is red.","That apple in my hand is red.","These apple in my hand is red."], answer:0, diff:2, hint:"Dalam tangan = dekat = This."},
+        {type:"mcq", q:"___ is my friend next to me.", options:["This","That"], answer:0, diff:1, hint:"Sebelah kita = This."},
+      ]},
+      { name:"To Be (am / is / are)", qs:[
+        {type:"mcq", q:"I ___ happy.", options:["am","is","are"], answer:0, diff:1, hint:"'I' guna 'am'."},
+        {type:"mcq", q:"She ___ my sister.", options:["am","is","are"], answer:1, diff:1, hint:"'She' guna 'is'."},
+        {type:"mcq", q:"They ___ my friends.", options:["am","is","are"], answer:2, diff:1, hint:"'They' guna 'are'."},
+        {type:"fill", q:"We ___ in class now.", answer:["are"], diff:2, hint:"'We' guna 'are'."},
+        {type:"fix", q:"He are tall.", options:["He is tall.","He am tall.","He are tall."], answer:0, diff:2, hint:"'He' guna 'is'."},
+        {type:"mcq", q:"The cat ___ sleeping.", options:["am","is","are"], answer:1, diff:2, hint:"'The cat' (satu) guna 'is'."},
+      ]},
+    ]
+  },
+  {
+    id:"w2", name:"SKY PATROL", emoji:"🦅", grade:"Tahun 2–3",
+    color:"#38BDF8",
+    topics:[
+      { name:"Plurals (one → many)", qs:[
+        {type:"mcq", q:"One cat, two ___.", options:["cat","cats","cates"], answer:1, diff:1, hint:"Tambah -s: cats."},
+        {type:"mcq", q:"One box, two ___.", options:["boxs","boxes","box"], answer:1, diff:2, hint:"Hujung -x tambah -es: boxes."},
+        {type:"fill", q:"One baby, three ___.", answer:["babies"], diff:3, hint:"-y jadi -ies: babies."},
+        {type:"mcq", q:"One child, two ___.", options:["childs","childrens","children"], answer:2, diff:3, hint:"Bentuk pelik: children."},
+        {type:"fill", q:"One bus, two ___.", answer:["buses"], diff:2, hint:"Hujung -s tambah -es: buses."},
+        {type:"mcq", q:"One foot, two ___.", options:["foots","feet","feets"], answer:1, diff:3, hint:"Bentuk pelik: feet."},
+      ]},
+      { name:"Pronouns (he/she/it/they)", qs:[
+        {type:"mcq", q:"Ali is kind. ___ helps everyone.", options:["He","She","It"], answer:0, diff:1, hint:"Ali = lelaki = He."},
+        {type:"mcq", q:"Siti is here. ___ is my friend.", options:["He","She","It"], answer:1, diff:1, hint:"Siti = perempuan = She."},
+        {type:"mcq", q:"The dog runs. ___ is fast.", options:["He","She","It"], answer:2, diff:2, hint:"Haiwan/benda = It."},
+        {type:"fill", q:"Ali and Siti play. ___ are happy.", answer:["they"], diff:2, hint:"Lebih dari satu = They."},
+        {type:"fix", q:"My mother cooks. He is good.", options:["My mother cooks. She is good.","My mother cooks. It is good.","My mother cooks. They is good."], answer:0, diff:2, hint:"Mother = perempuan = She."},
+        {type:"mcq", q:"The books are old. ___ are on the shelf.", options:["It","He","They"], answer:2, diff:2, hint:"Banyak benda = They."},
+      ]},
+      { name:"Simple Present", qs:[
+        {type:"mcq", q:"I ___ to school every day.", options:["walk","walks","walking"], answer:0, diff:1, hint:"'I' guna kata kerja biasa: walk."},
+        {type:"mcq", q:"She ___ books.", options:["read","reads","reading"], answer:1, diff:2, hint:"'She' tambah -s: reads."},
+        {type:"fill", q:"He ___ football. (play)", answer:["plays"], diff:2, hint:"'He' tambah -s: plays."},
+        {type:"fix", q:"The sun rise in the east.", options:["The sun rises in the east.","The sun rising in the east.","The sun rise in the east."], answer:0, diff:2, hint:"'The sun' (satu) tambah -s: rises."},
+        {type:"mcq", q:"We ___ rice for lunch.", options:["eats","eat","eating"], answer:1, diff:1, hint:"'We' guna kata kerja biasa: eat."},
+        {type:"fill", q:"My cat ___ a lot. (sleep)", answer:["sleeps"], diff:3, hint:"'My cat' (satu) tambah -s: sleeps."},
+      ]},
+      { name:"Prepositions (in/on/under)", qs:[
+        {type:"mcq", q:"The ball is ___ the box. (dalam)", options:["in","on","under"], answer:0, diff:1, hint:"Dalam = in."},
+        {type:"mcq", q:"The book is ___ the table. (atas)", options:["in","on","under"], answer:1, diff:1, hint:"Atas permukaan = on."},
+        {type:"mcq", q:"The cat is ___ the chair. (bawah)", options:["in","on","under"], answer:2, diff:1, hint:"Bawah = under."},
+        {type:"fill", q:"The fish swims ___ water. (dalam)", answer:["in"], diff:2, hint:"Dalam air = in."},
+        {type:"fix", q:"The picture is under the wall.", options:["The picture is on the wall.","The picture is in the wall.","The picture is under the wall."], answer:0, diff:2, hint:"Tergantung pada dinding = on."},
+        {type:"mcq", q:"My shoes are ___ the bed. (bawah)", options:["on","in","under"], answer:2, diff:2, hint:"Bawah katil = under."},
+      ]},
+    ]
+  },
+  {
+    id:"w3", name:"POWER SURGE", emoji:"⚡", grade:"Tahun 3–4",
+    color:"#FACC15",
+    topics:[
+      { name:"Subject–Verb Agreement", qs:[
+        {type:"mcq", q:"He ___ fast.", options:["run","runs","running"], answer:1, diff:1, hint:"He/She/It tambah -s: runs."},
+        {type:"mcq", q:"The children ___ in the park.", options:["plays","play","playing"], answer:1, diff:2, hint:"'children' (ramai) guna play."},
+        {type:"fill", q:"My friend ___ TV. (watch)", answer:["watches"], diff:3, hint:"Hujung -ch tambah -es: watches."},
+        {type:"fix", q:"She do her homework.", options:["She does her homework.","She doing her homework.","She do her homework."], answer:0, diff:2, hint:"'She' guna does."},
+        {type:"mcq", q:"The dogs ___ loudly.", options:["barks","bark","barking"], answer:1, diff:2, hint:"'dogs' (ramai) guna bark."},
+        {type:"fill", q:"Water ___ at 100°C. (boil)", answer:["boils"], diff:3, hint:"'Water' (singular) tambah -s: boils."},
+      ]},
+      { name:"Simple Past", qs:[
+        {type:"mcq", q:"Yesterday I ___ to the shop.", options:["go","went","goes"], answer:1, diff:2, hint:"go → went (lampau)."},
+        {type:"mcq", q:"She ___ a cake last night.", options:["bake","baked","bakes"], answer:1, diff:1, hint:"Tambah -ed: baked."},
+        {type:"fill", q:"We ___ football yesterday. (play)", answer:["played"], diff:2, hint:"play → played."},
+        {type:"fix", q:"He eat all the rice this morning.", options:["He ate all the rice this morning.","He eaten all the rice this morning.","He eats all the rice this morning."], answer:0, diff:3, hint:"eat → ate (lampau)."},
+        {type:"mcq", q:"They ___ happy at the party.", options:["was","were","are"], answer:1, diff:2, hint:"'They' lampau = were."},
+        {type:"fill", q:"I ___ my friend last week. (see)", answer:["saw"], diff:3, hint:"see → saw."},
+      ]},
+      { name:"Adjectives", qs:[
+        {type:"mcq", q:"Pick the adjective: 'a tall tree'.", options:["a","tall","tree"], answer:1, diff:1, hint:"Adjective = sifat. 'tall' = tinggi."},
+        {type:"mcq", q:"The ___ sun is bright.", options:["hot","run","slowly"], answer:0, diff:2, hint:"'hot' menerangkan matahari."},
+        {type:"fill", q:"A baby elephant is very ___ (besar). One word.", answer:["big","heavy","large"], diff:2, hint:"Besar = big/large."},
+        {type:"fix", q:"She has a car red.", options:["She has a red car.","She has a car red.","She red has a car."], answer:0, diff:2, hint:"Adjective di DEPAN noun: red car."},
+        {type:"mcq", q:"Which describes a noun?", options:["quickly","beautiful","jump"], answer:1, diff:2, hint:"'beautiful' = sifat = adjective."},
+        {type:"mcq", q:"The soup is ___.", options:["delicious","slowly","runs"], answer:0, diff:1, hint:"'delicious' menerangkan rasa sup."},
+      ]},
+      { name:"And / But / Or", qs:[
+        {type:"mcq", q:"I like tea ___ coffee. (dua-dua)", options:["and","but","or"], answer:0, diff:1, hint:"Tambah = and."},
+        {type:"mcq", q:"He is small ___ strong. (bertentangan)", options:["and","but","or"], answer:1, diff:2, hint:"Berlawanan = but."},
+        {type:"mcq", q:"Do you want rice ___ noodles? (pilih)", options:["and","but","or"], answer:2, diff:2, hint:"Pilihan = or."},
+        {type:"fill", q:"It was raining, ___ we stayed home. (sebab itu/berlawanan)", answer:["but","so"], diff:3, hint:"Berlawanan situasi = but."},
+        {type:"fix", q:"She is tired or she keeps working.", options:["She is tired but she keeps working.","She is tired and she keeps working.","She is tired or she keeps working."], answer:0, diff:3, hint:"Bertentangan = but."},
+        {type:"mcq", q:"You can walk ___ take a bus.", options:["but","or","and"], answer:1, diff:2, hint:"Dua pilihan = or."},
+      ]},
+    ]
+  },
+  {
+    id:"w4", name:"MEGA CITY", emoji:"🌆", grade:"Tahun 4–5",
+    color:"#A855F7",
+    topics:[
+      { name:"Present Continuous", qs:[
+        {type:"mcq", q:"She ___ reading now.", options:["is","are","am"], answer:0, diff:1, hint:"She + is + verb-ing."},
+        {type:"mcq", q:"They ___ playing football.", options:["is","are","am"], answer:1, diff:1, hint:"They + are + verb-ing."},
+        {type:"fill", q:"I am ___ a letter. (write)", answer:["writing"], diff:2, hint:"write → writing (buang -e)."},
+        {type:"fix", q:"He is run in the field.", options:["He is running in the field.","He is runing in the field.","He running in the field."], answer:0, diff:3, hint:"run → running (gandakan -n)."},
+        {type:"mcq", q:"We ___ watching TV.", options:["am","is","are"], answer:2, diff:1, hint:"We + are."},
+        {type:"fill", q:"The dog is ___ . (swim)", answer:["swimming"], diff:3, hint:"swim → swimming (gandakan -m)."},
+      ]},
+      { name:"Comparative / Superlative", qs:[
+        {type:"mcq", q:"An elephant is ___ than a cat.", options:["big","bigger","biggest"], answer:1, diff:1, hint:"Banding 2 = -er: bigger."},
+        {type:"mcq", q:"Mount Everest is the ___ mountain.", options:["tall","taller","tallest"], answer:2, diff:2, hint:"Paling = -est: tallest."},
+        {type:"fill", q:"A car is ___ than a bicycle. (fast)", answer:["faster"], diff:2, hint:"fast → faster."},
+        {type:"fix", q:"She is the more clever in class.", options:["She is the cleverest in class.","She is the more cleverer in class.","She is cleverer in class."], answer:0, diff:3, hint:"Paling pandai dalam kelas = cleverest."},
+        {type:"mcq", q:"This box is ___ than that one.", options:["heavy","heavier","heaviest"], answer:1, diff:2, hint:"-y → -ier: heavier."},
+        {type:"mcq", q:"Today is the ___ day of the year.", options:["hot","hotter","hottest"], answer:2, diff:2, hint:"Paling = hottest."},
+      ]},
+      { name:"Adverbs", qs:[
+        {type:"mcq", q:"She sings ___.", options:["beautiful","beautifully","beauty"], answer:1, diff:2, hint:"Menerangkan kata kerja = -ly: beautifully."},
+        {type:"mcq", q:"He runs ___.", options:["quick","quickly","quicker"], answer:1, diff:1, hint:"quick → quickly."},
+        {type:"fill", q:"The turtle moves ___ . (slow)", answer:["slowly"], diff:2, hint:"slow → slowly."},
+        {type:"fix", q:"They speak quiet in the library.", options:["They speak quietly in the library.","They speak quiet in the library.","They speaks quietly in the library."], answer:0, diff:2, hint:"Menerangkan 'speak' = quietly."},
+        {type:"mcq", q:"Pick the adverb: 'He waited patiently.'", options:["He","waited","patiently"], answer:2, diff:2, hint:"'patiently' menerangkan cara menunggu."},
+        {type:"mcq", q:"She answered the question ___.", options:["correct","correctly","correcter"], answer:1, diff:2, hint:"correct → correctly."},
+      ]},
+      { name:"WH-Questions", qs:[
+        {type:"mcq", q:"___ is your name?", options:["What","When","Where"], answer:0, diff:1, hint:"Tanya nama = What."},
+        {type:"mcq", q:"___ do you live?", options:["What","Where","Who"], answer:1, diff:1, hint:"Tanya tempat = Where."},
+        {type:"mcq", q:"___ is your birthday?", options:["Where","Who","When"], answer:2, diff:2, hint:"Tanya masa = When."},
+        {type:"fill", q:"___ is your teacher? (tanya orang)", answer:["who"], diff:2, hint:"Tanya orang = Who."},
+        {type:"mcq", q:"___ are you sad? (tanya sebab)", options:["Why","Where","What"], answer:0, diff:2, hint:"Tanya sebab = Why."},
+        {type:"fix", q:"What old are you?", options:["How old are you?","When old are you?","Why old are you?"], answer:0, diff:3, hint:"Tanya umur = How old."},
+      ]},
+    ]
+  },
+  {
+    id:"w5", name:"LEGEND LEAGUE", emoji:"👑", grade:"Tahun 5–6",
+    color:"#E11D48",
+    topics:[
+      { name:"Future Tense (will)", qs:[
+        {type:"mcq", q:"I ___ visit my grandma tomorrow.", options:["will","wills","am"], answer:0, diff:1, hint:"Masa depan = will."},
+        {type:"fill", q:"They ___ play football next week. (will)", answer:["will"], diff:1, hint:"Masa depan = will."},
+        {type:"fix", q:"She will goes to the party.", options:["She will go to the party.","She will going to the party.","She wills go to the party."], answer:0, diff:2, hint:"Selepas 'will' guna kata kerja asas: go."},
+        {type:"mcq", q:"We ___ finish the project soon.", options:["will","willed","wills"], answer:0, diff:2, hint:"will + verb asas."},
+        {type:"mcq", q:"It ___ rain later.", options:["will","wills","willing"], answer:0, diff:1, hint:"Ramalan masa depan = will."},
+        {type:"fill", q:"I ___ help you tomorrow. (will)", answer:["will"], diff:1, hint:"Masa depan = will."},
+      ]},
+      { name:"Modals (can/must/should)", qs:[
+        {type:"mcq", q:"Birds ___ fly. (kebolehan)", options:["can","must","should"], answer:0, diff:1, hint:"Boleh/kebolehan = can."},
+        {type:"mcq", q:"You ___ wear a helmet. It is the law. (wajib)", options:["can","must","might"], answer:1, diff:2, hint:"Wajib = must."},
+        {type:"mcq", q:"You ___ eat more vegetables. (nasihat)", options:["should","can","must"], answer:0, diff:2, hint:"Nasihat = should."},
+        {type:"fix", q:"He can to swim very well.", options:["He can swim very well.","He cans swim very well.","He can swims very well."], answer:0, diff:3, hint:"Selepas 'can' guna verb asas, tanpa 'to'."},
+        {type:"fill", q:"We ___ be quiet in the library. (wajib)", answer:["must","should"], diff:2, hint:"Wajib = must."},
+        {type:"mcq", q:"___ you help me, please? (permintaan sopan)", options:["Must","Can","Should"], answer:1, diff:2, hint:"Permintaan sopan = Can."},
+      ]},
+      { name:"Passive Voice", qs:[
+        {type:"mcq", q:"Active: 'Ali kicks the ball.' Passive: 'The ball ___ by Ali.'", options:["is kicked","kicks","kicking"], answer:0, diff:3, hint:"is + past participle: is kicked."},
+        {type:"mcq", q:"The cake ___ by my mother.", options:["bakes","is baked","baking"], answer:1, diff:2, hint:"is + baked."},
+        {type:"fix", q:"The letter wrote by Siti.", options:["The letter was written by Siti.","The letter writes by Siti.","The letter is wrote by Siti."], answer:0, diff:3, hint:"was + written (lampau pasif)."},
+        {type:"mcq", q:"English ___ all over the world.", options:["speaks","is spoken","speaking"], answer:1, diff:3, hint:"is + spoken."},
+        {type:"fill", q:"The house ___ cleaned every day. (is/are)", answer:["is"], diff:2, hint:"'The house' (singular) = is cleaned."},
+        {type:"mcq", q:"The window ___ by the boy.", options:["broke","was broken","breaks"], answer:1, diff:3, hint:"was + broken."},
+      ]},
+      { name:"Punctuation", qs:[
+        {type:"mcq", q:"Which ending is correct for a question?", options:["What is your name.","What is your name?","What is your name,"], answer:1, diff:1, hint:"Soalan tamat dengan ? "},
+        {type:"fix", q:"i went to ipoh kuala lumpur and penang", options:["I went to Ipoh, Kuala Lumpur and Penang.","i went to ipoh kuala lumpur and penang.","I went to Ipoh Kuala Lumpur and Penang."], answer:0, diff:3, hint:"Huruf besar + koma antara senarai + noktah."},
+        {type:"mcq", q:"Pick the correct one.", options:["Wow that is great!","Wow, that is great!","wow that is great"], answer:1, diff:2, hint:"Koma selepas 'Wow' + tanda seru."},
+        {type:"fill", q:"Add the right end mark: 'Be careful___' (terkejut/amaran)", answer:["!"], diff:2, hint:"Amaran kuat = tanda seru !"},
+        {type:"fix", q:"do you like ice cream", options:["Do you like ice cream?","do you like ice cream.","Do you like ice cream."], answer:0, diff:2, hint:"Soalan: huruf besar + ?"},
+        {type:"mcq", q:"Which uses an apostrophe correctly?", options:["The dog's bone","The dogs' bone is for one dog","The dogs bone"], answer:0, diff:3, hint:"Milik satu anjing = dog's."},
+      ]},
+    ]
+  },
+];
+
+/* ===========================================================================
+   ENJIN — Cikgu tak perlu ubah bahagian bawah ni (kecuali nak tambah ciri)
+   =========================================================================== */
+
+const RANKS = [
+  {name:"ROOKIE",  min:0,    label:"Hero baru — jom mula!"},
+  {name:"CADET",   min:100,  label:"Bagus! Teruskan latihan."},
+  {name:"AGENT",   min:300,  label:"Kuasa makin kuat! 💪"},
+  {name:"HERO",    min:600,  label:"Wira sebenar dah muncul!"},
+  {name:"CAPTAIN", min:1000, label:"Kapten Grammar! 🫡"},
+  {name:"LEGEND",  min:1500, label:"LEGENDA! Hebat tahap dewa. 👑"},
+];
+
+const ALL_BADGES = [
+  {id:"first",   icon:"🎯", name:"First Win",      test:s=>s.totalCorrect>=1},
+  {id:"combo5",  icon:"🔥", name:"Combo x5",       test:s=>s.bestCombo>=5},
+  {id:"combo10", icon:"💥", name:"Combo x10",      test:s=>s.bestCombo>=10},
+  {id:"perfect", icon:"💯", name:"Perfect Run",    test:s=>s.perfectRuns>=1},
+  {id:"w1",      icon:"🛡️", name:"Rookie Cleared", test:s=>s.cleared.w1},
+  {id:"w2",      icon:"🦅", name:"Sky Cleared",    test:s=>s.cleared.w2},
+  {id:"w3",      icon:"⚡", name:"Power Cleared",  test:s=>s.cleared.w3},
+  {id:"w4",      icon:"🌆", name:"Mega Cleared",   test:s=>s.cleared.w4},
+  {id:"w5",      icon:"👑", name:"Legend Cleared", test:s=>s.cleared.w5},
+  {id:"xp500",   icon:"⭐", name:"500 XP Club",    test:s=>s.xp>=500},
+  {id:"boss",    icon:"😈", name:"Boss Beater",    test:s=>s.bossWins>=1},
+  {id:"scholar", icon:"🎓", name:"Grammar Scholar",test:s=>s.totalCorrect>=100},
+];
+
+// ---- State (cuba simpan dalam pelayar; degrade dengan elegan jika disekat) ----
+const SAVE_KEY = "grammarHeroes_v1";
+function loadState(){
+  let base = {xp:0, totalCorrect:0, bestCombo:0, perfectRuns:0, bossWins:0,
+              cleared:{w1:false,w2:false,w3:false,w4:false,w5:false}, stars:{}, badges:[]};
+  try{ const raw = localStorage.getItem(SAVE_KEY); if(raw) base = Object.assign(base, JSON.parse(raw)); }catch(e){}
+  return base;
+}
+function saveState(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(STATE)); }catch(e){} }
+let STATE = loadState();
+
+// ---- Quiz session ----
+let session = null; // {worldIdx, topicIdx, isBoss, questions[], idx, correct, combo, bestCombo}
+
+// ---- Helpers ----
+const $ = id => document.getElementById(id);
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function rankFor(xp){ let r=RANKS[0]; for(const x of RANKS){ if(xp>=x.min) r=x; } return r; }
+function topicKey(w,t){ return WORLDS[w].id+"_"+t; }
+
+function showToast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(t._timer); t._timer=setTimeout(()=>t.classList.remove("show"),2200);
+}
+function fireBurst(text){
+  const b=$("burst"); $("burstText").textContent=text;
+  b.classList.add("show"); setTimeout(()=>b.classList.remove("show"),700);
+}
+
+// ---- Render topbar ----
+function renderTopbar(){
+  const r = rankFor(STATE.xp);
+  const next = RANKS.find(x=>x.min>STATE.xp);
+  $("rankBadge").textContent = r.name;
+  $("rankName").textContent = r.label;
+  $("xpNum").textContent = STATE.xp + " XP" + (next?("  •  "+(next.min-STATE.xp)+" XP lagi → "+next.name):"  •  MAX!");
+  const lo=r.min, hi=next?next.min:r.min+1;
+  const pct = next? Math.min(100,((STATE.xp-lo)/(hi-lo))*100) : 100;
+  $("xpFill").style.width = pct+"%";
+}
+
+// ---- Screens ----
+function show(scr){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $("screen-"+scr).classList.add("active"); window.scrollTo({top:0,behavior:"smooth"}); }
+function goHome(){ renderWorlds(); renderTopbar(); show("home"); }
+
+// ---- Home: world cards ----
+function renderWorlds(){
+  const grid=$("worldGrid"); grid.innerHTML="";
+  WORLDS.forEach((w,i)=>{
+    // dunia terbuka jika dunia sebelum dah dapat sekurang-kurang 1 bintang di mana-mana topik (atau dunia pertama)
+    const prevCleared = i===0 ? true : worldHasProgress(i-1);
+    const stars = worldStars(i);
+    const card=document.createElement("div");
+    card.className="world-card"+(prevCleared?"":" locked");
+    card.tabIndex = prevCleared?0:-1;
+    card.innerHTML = `
+      <div class="emoji">${w.emoji}</div>
+      <div class="wc-body">
+        <div class="wc-name" style="color:${w.color}">${w.name}</div>
+        <div class="wc-grade">${w.grade} • ${w.topics.length} misi + boss</div>
+        <div class="wc-stars">${"⭐".repeat(stars)}${"▫️".repeat(Math.max(0,(w.topics.length+1)-stars))}</div>
+      </div>
+      ${prevCleared? '<div class="chev">▶</div>' : '<div class="lock-tag">🔒 Terkunci</div>'}`;
+    if(prevCleared){
+      card.onclick=()=>openWorld(i);
+      card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openWorld(i);}};
+    } else {
+      card.onclick=()=>showToast("Dapat ⭐ di dunia sebelum dulu untuk buka ni!");
+    }
+    grid.appendChild(card);
+  });
+}
+function worldStars(i){ // jumlah bintang dikumpul dalam dunia (termasuk boss)
+  let s=0; WORLDS[i].topics.forEach((_,t)=>{ s+=(STATE.stars[topicKey(i,t)]||0)?1:0; }); s+=(STATE.stars[topicKey(i,"boss")]||0)?1:0; return s;
+}
+function worldHasProgress(i){ return worldStars(i)>0; }
+
+// ---- World map: topic list ----
+function openWorld(i){
+  const w=WORLDS[i];
+  $("worldHeader").innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="font-size:3rem">${w.emoji}</div>
+      <div>
+        <div style="font-family:'Bangers',cursive;font-size:1.9rem;letter-spacing:1px;color:${w.color}">${w.name}</div>
+        <div style="font-weight:600;opacity:.7">${w.grade} • Pilih misi untuk mula latihan</div>
+      </div>
+    </div>`;
+  const list=$("topicList"); list.innerHTML="";
+  w.topics.forEach((t,ti)=>{
+    const st = STATE.stars[topicKey(i,ti)]||0;
+    const el=document.createElement("div");
+    el.className="topic"; el.tabIndex=0;
+    el.innerHTML=`
+      <div class="num">${ti+1}</div>
+      <div class="t-body">
+        <div class="t-name">${t.name}</div>
+        <div class="t-meta">${t.qs.length} soalan • campuran format</div>
+      </div>
+      <div class="t-stars">${st? "⭐".repeat(st):"▫️▫️▫️"}</div>`;
+    const go=()=>startQuiz(i,ti,false);
+    el.onclick=go; el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}};
+    list.appendChild(el);
+  });
+  // Boss battle
+  const allStars = w.topics.every((_,ti)=>(STATE.stars[topicKey(i,ti)]||0)>0);
+  const bossSt = STATE.stars[topicKey(i,"boss")]||0;
+  const boss=document.createElement("div");
+  boss.className="topic boss"; boss.tabIndex=0;
+  boss.innerHTML=`
+    <div class="num">😈</div>
+    <div class="t-body">
+      <div class="t-name">BOSS BATTLE — ${w.name}</div>
+      <div class="t-meta">${allStars? "Soalan campur semua misi. Kalahkan untuk naik dunia!" : "🔒 Habiskan semua misi atas dulu."}</div>
+    </div>
+    <div class="t-stars">${bossSt?"👑":""}</div>`;
+  if(allStars){
+    const go=()=>startQuiz(i,null,true);
+    boss.onclick=go; boss.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}};
+  } else {
+    boss.style.opacity=".6";
+    boss.onclick=()=>showToast("Habiskan semua misi atas dulu untuk lawan boss!");
+  }
+  list.appendChild(boss);
+  show("world");
+}
+
+// ---- Adaptive ordering: mula mudah, naik bila combo, turun bila silap ----
+function buildQuestionOrder(qs){
+  // kumpul ikut diff, susun: mudah dulu kemudian sederhana kemudian cabaran,
+  // tapi rawak dalam setiap aras supaya tak sama tiap kali
+  const easy=shuffle(qs.filter(q=>(q.diff||1)===1));
+  const med =shuffle(qs.filter(q=>(q.diff||1)===2));
+  const hard=shuffle(qs.filter(q=>(q.diff||1)===3));
+  return [...easy,...med,...hard];
+}
+
+function startQuiz(wi,ti,isBoss){
+  let qs;
+  if(isBoss){
+    // ambil 1-2 soalan dari setiap topik dunia, campur
+    qs=[]; WORLDS[wi].topics.forEach(t=>{ qs.push(...shuffle(t.qs).slice(0,2)); });
+    qs=shuffle(qs).slice(0,10);
+  } else {
+    qs=buildQuestionOrder(WORLDS[wi].topics[ti].qs).slice(0,8);
+  }
+  session={worldIdx:wi, topicIdx:ti, isBoss, questions:qs, idx:0, correct:0, combo:0, bestCombo:0, answered:false};
+  show("quiz");
+  renderQuestion();
+}
+
+function renderQuestion(){
+  session.answered=false;
+  const q=session.questions[session.idx];
+  const total=session.questions.length;
+  $("qCount").textContent=(session.idx+1)+"/"+total;
+  $("qProgress").style.width=((session.idx)/total*100)+"%";
+  $("combo").textContent = session.combo>=2 ? ("🔥 x"+session.combo) : "";
+
+  const tags={mcq:"PILIH JAWAPAN", fill:"ISI TEMPAT KOSONG", fix:"BETULKAN AYAT"};
+  $("qTypeTag").textContent = (session.isBoss?"😈 BOSS • ":"") + (tags[q.type]||"SOALAN");
+  const instr={
+    mcq:"Pilih jawapan yang betul / Choose the correct answer:",
+    fill:"Taip jawapan dalam kotak / Type the answer:",
+    fix:"Pilih ayat yang BETUL / Pick the correct sentence:"
+  };
+  $("qInstruction").textContent = instr[q.type]||"";
+
+  // question text (gantikan ___ dengan blank bergaya untuk mcq/fill)
+  let html = q.q;
+  if(q.type!=="fix"){ html = html.replace(/_{2,}/g, '<span class="blank">?</span>'); }
+  $("qText").innerHTML = html;
+
+  const optBox=$("qOptions"); optBox.innerHTML="";
+  $("feedback").className="feedback"; $("feedback").innerHTML="";
+  $("nextBtn").style.display="none";
+  $("hintRow").innerHTML="";
+
+  if(q.type==="fill"){
+    const inp=document.createElement("input");
+    inp.className="fill-input"; inp.id="fillInput"; inp.placeholder="taip di sini...";
+    inp.autocomplete="off"; inp.autocapitalize="off"; inp.spellcheck=false;
+    inp.onkeydown=e=>{ if(e.key==="Enter") submitFill(); };
+    optBox.appendChild(inp);
+    const b=document.createElement("button");
+    b.className="btn blue full"; b.textContent="Hantar Jawapan ✔️"; b.style.marginTop="12px";
+    b.onclick=submitFill; optBox.appendChild(b);
+    setTimeout(()=>inp.focus(),200);
+  } else {
+    const order = q._order || (q._order = shuffle(q.options.map((_,k)=>k)));
+    order.forEach((origIdx,pos)=>{
+      const btn=document.createElement("button");
+      btn.className="opt";
+      btn.innerHTML=`<span class="key">${String.fromCharCode(65+pos)}</span><span>${q.options[origIdx]}</span>`;
+      btn.onclick=()=>chooseOption(origIdx,btn);
+      optBox.appendChild(btn);
+    });
+  }
+  // hint button
+  const hb=document.createElement("button");
+  hb.className="btn btn-hint"; hb.innerHTML="💡 Petua (Hint)";
+  hb.onclick=()=>{ showToast("💡 "+(q.hint||"Cuba fikir balik!")); };
+  $("hintRow").appendChild(hb);
+}
+
+function chooseOption(origIdx,btn){
+  if(session.answered) return;
+  const q=session.questions[session.idx];
+  const correct = origIdx===q.answer;
+  // tanda semua butang
+  document.querySelectorAll("#qOptions .opt").forEach(b=>b.disabled=true);
+  if(correct){ btn.classList.add("correct"); }
+  else{
+    btn.classList.add("wrong");
+    // serlah jawapan betul
+    document.querySelectorAll("#qOptions .opt").forEach((b)=>{
+      const label=b.querySelector("span:last-child").textContent;
+      if(label===q.options[q.answer]) b.classList.add("correct");
+    });
+  }
+  finishAnswer(correct,q);
+}
+
+function submitFill(){
+  if(session.answered) return;
+  const q=session.questions[session.idx];
+  const inp=$("fillInput");
+  const val=(inp.value||"").trim().toLowerCase();
+  if(!val){ showToast("Taip jawapan dulu ya ✍️"); inp.focus(); return; }
+  const accepted = (Array.isArray(q.answer)?q.answer:[q.answer]).map(a=>String(a).toLowerCase());
+  const correct = accepted.includes(val);
+  inp.disabled=true; inp.classList.add(correct?"correct":"wrong");
+  document.querySelectorAll("#qOptions button").forEach(b=>b.disabled=true);
+  finishAnswer(correct,q);
+}
+
+function finishAnswer(correct,q){
+  session.answered=true;
+  const fb=$("feedback");
+  if(correct){
+    session.correct++; session.combo++; session.bestCombo=Math.max(session.bestCombo,session.combo);
+    const words=["POW!","ZAP!","BOOM!","KAPOW!","WHAM!","YES!"];
+    fireBurst(words[Math.floor(Math.random()*words.length)]);
+    fb.className="feedback show good";
+    const praise = session.combo>=3 ? `Combo x${session.combo}! Tak boleh dihalang! 🔥` : "Betul! Hebat! 🎉";
+    fb.innerHTML=`<div class="fb-title" style="color:var(--green-d)">${praise}</div>`;
+  } else {
+    session.combo=0;
+    fb.className="feedback show bad";
+    let ans = Array.isArray(q.answer)? q.answer[0] : (q.type==="fill"? q.answer : q.options[q.answer]);
+    fb.innerHTML=`<div class="fb-title" style="color:var(--crimson)">Belum tepat! Cuba ingat ya 💪</div>
+      <div class="fb-ans">Jawapan betul / Answer: <b>${ans}</b></div>
+      <div class="fb-hint">💡 ${q.hint||""}</div>`;
+  }
+  $("qProgress").style.width=((session.idx+1)/session.questions.length*100)+"%";
+  $("combo").textContent = session.combo>=2 ? ("🔥 x"+session.combo) : "";
+  const last = session.idx>=session.questions.length-1;
+  $("nextBtn").textContent = last? "Lihat Keputusan 🏁" : "Seterusnya ➡️";
+  $("nextBtn").style.display="block";
+}
+
+function nextQuestion(){
+  if(session.idx>=session.questions.length-1){ finishQuiz(); return; }
+  session.idx++; renderQuestion();
+}
+
+function finishQuiz(){
+  const total=session.questions.length;
+  const pct = session.correct/total;
+  let stars = pct>=0.9?3 : pct>=0.7?2 : pct>=0.4?1 : 0;
+  // XP
+  let xp = session.correct*10 + session.bestCombo*5 + (session.isBoss?30:0) + (stars===3?20:0);
+
+  // update STATE
+  STATE.xp += xp;
+  STATE.totalCorrect += session.correct;
+  STATE.bestCombo = Math.max(STATE.bestCombo, session.bestCombo);
+  if(pct===1) STATE.perfectRuns++;
+  const key = topicKey(session.worldIdx, session.isBoss?"boss":session.topicIdx);
+  STATE.stars[key] = Math.max(STATE.stars[key]||0, stars);
+  if(session.isBoss && stars>0){ STATE.bossWins++; STATE.cleared[WORLDS[session.worldIdx].id]=true; }
+
+  checkBadges();
+  saveState();
+
+  // render result
+  $("resMedal").textContent = stars===3?"🏆":stars===2?"🥈":stars===1?"🥉":"💪";
+  $("resTitle").textContent = session.isBoss? (stars>0?"BOSS DIKALAHKAN!":"BOSS MASIH KUAT!") : (stars>=2?"MISI HEBAT!":stars===1?"MISI SELESAI!":"CUBA LAGI YA!");
+  $("resStars").textContent = stars>0? "⭐".repeat(stars)+"▫️".repeat(3-stars) : "▫️▫️▫️";
+  $("resCorrect").textContent = session.correct+"/"+total;
+  $("resCombo").textContent = "🔥 "+session.bestCombo;
+  $("resXP").textContent = "+"+xp;
+  renderTopbar();
+  show("result");
+  if(session.isBoss && stars>0){ setTimeout(()=>fireBurst("WORLD CLEARED!"),400); }
+}
+
+function checkBadges(){
+  ALL_BADGES.forEach(b=>{
+    if(!STATE.badges.includes(b.id) && b.test(STATE)){
+      STATE.badges.push(b.id);
+      setTimeout(()=>showToast("🏅 Lencana baru: "+b.name+"!"),300);
+    }
+  });
+}
+
+function retryTopic(){ startQuiz(session.worldIdx, session.topicIdx, session.isBoss); }
+function backToWorld(){ openWorld(session.worldIdx); }
+function quitQuiz(){ if(confirm("Keluar misi? Progress soalan ini tak disimpan.")) openWorld(session.worldIdx); }
+
+// ---- Badges screen ----
+function showBadges(){
+  const g=$("badgeGrid"); g.innerHTML="";
+  ALL_BADGES.forEach(b=>{
+    const got=STATE.badges.includes(b.id);
+    const el=document.createElement("div");
+    el.className="badge"+(got?"":" locked");
+    el.innerHTML=`<div class="b-icon">${b.icon}</div><div class="b-name">${b.name}</div>`;
+    g.appendChild(el);
+  });
+  show("badges");
+}
+
+// ---- Boot ----
+renderTopbar();
+renderWorlds();
+</script>
+</body>
+</html>
